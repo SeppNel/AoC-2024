@@ -9,3 +9,6 @@ part2: AoC1_part2.cpp
 
 run2: part2
 	./part2
+
+clean:
+	rm -f part1 part2
