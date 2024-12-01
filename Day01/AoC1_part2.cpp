@@ -1,39 +1,13 @@
-#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
 
 vector<int> list1;
 vector<int> list2;
-
-vector<string> string_split(string str, string del) {
-    vector<string> output;
-    // Find first occurrence of the delimiter
-    auto pos = str.find(del);
-
-    // While there are still delimiters in the
-    // string
-    while (pos != string::npos) {
-
-        // Extracting the substring up to the
-        // delimiter
-        output.push_back(str.substr(0, pos));
-
-        // Erase the extracted part from the
-        // original string
-        str.erase(0, pos + del.length());
-
-        // Find the next occurrence of the
-        // delimiter
-        pos = str.find(del);
-    }
-
-    output.push_back(str);
-    return output;
-}
 
 pair<int, int> string_split_pair(string str, string del) {
     pair<int, int> output;
@@ -65,30 +39,23 @@ void readInput(string filename) {
     file.close();
 }
 
-uint frequencyInVector(vector<int> &v, int n) {
-    uint total = 0;
-    for (size_t i = 0; i < v.size(); i++) {
-        if (v[i] == n) {
-            total++;
-        } else if (v[i] > n) {
-            break;
-        }
+unordered_map<int, uint> allFrequencies(vector<int> &v) {
+    unordered_map<int, uint> output;
+
+    for (auto e : v) {
+        output[e]++;
     }
 
-    return total;
+    return output;
 }
 
 int main(int argc, char *argv[]) {
     readInput("input.txt");
-
-    // Optimization for early exits
-    sort(list2.begin(), list2.end());
+    unordered_map<int, uint> freqs = allFrequencies(list2);
 
     uint total = 0;
     for (size_t i = 0; i < list1.size(); i++) {
-        uint freq = frequencyInVector(list2, list1[i]);
-
-        total += list1[i] * freq;
+        total += list1[i] * freqs[list1[i]];
     }
 
     cout << "Total: " << total << "\n";
