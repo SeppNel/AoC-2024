@@ -9,8 +9,9 @@
             "type": "gdb",
             "request": "launch",
             "target": "./part2",
-            "cwd": "${workspaceRoot}/Day05",
-            "valuesFormatting": "prettyPrinters"
+            "cwd": "${workspaceRoot}/Day06",
+            "valuesFormatting": "prettyPrinters",
+            "preLaunchTask": "buildDebug"
         }
     ]
 }

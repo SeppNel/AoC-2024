@@ -1,0 +1,16 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "buildDebug",
+            "type": "shell",
+            "command": "make", // Could be any other shell command
+            "args": [
+                "part2_debug"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Day06"
+            }
+        }
+    ]
+}
