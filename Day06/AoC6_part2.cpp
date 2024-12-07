@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -29,6 +30,21 @@ struct VisitedPosition {
 
     bool operator==(const VisitedPosition &o) const {
         return x == o.x && y == o.y && dir == o.dir;
+    }
+
+    VisitedPosition(uint x, uint y, char d) {
+        this->x = x;
+        this->y = y;
+        this->dir = d;
+    }
+};
+
+struct HashVisitedPosition {
+    std::size_t operator()(const VisitedPosition &vp) const {
+        std::size_t h1 = std::hash<uint>{}(vp.x);
+        std::size_t h2 = std::hash<uint>{}(vp.y);
+        std::size_t h3 = std::hash<char>{}(vp.dir);
+        return h1 ^ (h2 << 1) ^ (h3 << 2);
     }
 };
 
@@ -99,16 +115,6 @@ char rotate(const char c) {
     return rotated;
 }
 
-void insertIfFullyUnique(vector<VisitedPosition> &v, const VisitedPosition &p) {
-    for (VisitedPosition c : v) {
-        if (c == p) {
-            return;
-        }
-    }
-
-    v.push_back(p);
-}
-
 int main(int argc, char *argv[]) {
     unordered_map<char, pair<int, int>> positions;
     positions['^'] = pair(-1, 0);
@@ -136,8 +142,7 @@ int main(int argc, char *argv[]) {
         if (map[nextPos.first][nextPos.second] == '#') {
             guard = rotate(guard);
         } else {
-            VisitedPosition p = {pos.first, pos.second, guard};
-            insertIfFullyUnique(visitedPath, p);
+            visitedPath.emplace_back(pos.first, pos.second, guard);
             pos = nextPos;
         }
 
@@ -160,7 +165,7 @@ int main(int argc, char *argv[]) {
         }
         triedObstacles.push_back(nextPos);
 
-        vector<VisitedPosition> newVisitedPath;
+        unordered_set<VisitedPosition, HashVisitedPosition> newVisitedPath;
         pair<int, int> newObstacle = nextPos;
 
         pair<uint, uint> pos = initialPos;
@@ -170,7 +175,7 @@ int main(int argc, char *argv[]) {
         while (nextPos.first >= 0 && nextPos.first < rows &&
                nextPos.second >= 0 && nextPos.second < cols) {
             VisitedPosition p = {pos.first, pos.second, guard};
-            if (inVector(p, newVisitedPath)) {
+            if (newVisitedPath.find(p) != newVisitedPath.end()) {
                 total++;
                 break;
             }
@@ -178,7 +183,7 @@ int main(int argc, char *argv[]) {
             if (map[nextPos.first][nextPos.second] == '#' || nextPos == newObstacle) {
                 guard = rotate(guard);
             } else {
-                newVisitedPath.push_back(p);
+                newVisitedPath.insert(p);
                 pos = nextPos;
             }
 
