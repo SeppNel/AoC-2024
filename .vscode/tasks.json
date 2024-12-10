@@ -9,7 +9,7 @@
                 "part1_debug"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/Day06"
+                "cwd": "${workspaceFolder}/Day09"
             }
         }
     ]
