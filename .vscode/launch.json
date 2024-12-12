@@ -8,8 +8,8 @@
             "name": "Debug",
             "type": "gdb",
             "request": "launch",
-            "target": "./part1",
-            "cwd": "${workspaceRoot}/Day09",
+            "target": "./part2",
+            "cwd": "${workspaceRoot}/Day11",
             "valuesFormatting": "prettyPrinters",
             "preLaunchTask": "buildDebug"
         }

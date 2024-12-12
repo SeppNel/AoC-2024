@@ -6,10 +6,10 @@
             "type": "shell",
             "command": "make", // Could be any other shell command
             "args": [
-                "part1_debug"
+                "part2_debug"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/Day09"
+                "cwd": "${workspaceFolder}/Day11"
             }
         }
     ]
