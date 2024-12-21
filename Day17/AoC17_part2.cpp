@@ -2,23 +2,10 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <mutex>
 #include <string>
-#include <thread>
 #include <vector>
 
 using namespace std;
-
-template <typename T>
-bool inVector(const T &needle, const vector<T> &haystack) {
-    for (const T &e : haystack) {
-        if (needle == e) {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 vector<string> string_split(string str, string del) {
     vector<string> output;
@@ -58,17 +45,17 @@ enum Opcodes {
 };
 
 struct Registers {
-    int A = 0;
-    int B = 0;
-    int C = 0;
+    uint64_t A = 0;
+    uint64_t B = 0;
+    uint64_t C = 0;
 };
 
 class CPU {
   public:
     Registers reg;
     uint ip = 0;
-    vector<int> program;
-    vector<int> output;
+    vector<uint64_t> program;
+    vector<uint64_t> output;
 
     void run() {
         while (ip < program.size()) {
@@ -115,8 +102,8 @@ class CPU {
         ip += 2;
     }
 
-    int decodeOperand(int op) {
-        int returnValue;
+    uint64_t decodeOperand(int op) {
+        uint64_t returnValue;
         if (op <= 3) {
             returnValue = op;
         } else if (op == 4) {
@@ -130,38 +117,38 @@ class CPU {
         return returnValue;
     }
 
-    void adv(int operand) {
+    void adv(uint64_t operand) {
         reg.A = reg.A / pow(2, operand);
     }
 
-    void bxl(int operand) {
+    void bxl(uint64_t operand) {
         reg.B = reg.B ^ operand;
     }
 
-    void bst(int operand) {
+    void bst(uint64_t operand) {
         reg.B = operand % 8;
     }
 
-    void jnz(int operand) {
+    void jnz(uint64_t operand) {
         if (reg.A != 0) {
             ip = operand;
             ip -= 2;
         }
     }
 
-    void bxc(int operand) {
+    void bxc(uint64_t operand) {
         reg.B = reg.B ^ reg.C;
     }
 
-    void out(int operand) {
+    void out(uint64_t operand) {
         output.push_back(operand % 8);
     }
 
-    void bdv(int operand) {
+    void bdv(uint64_t operand) {
         reg.B = reg.A / pow(2, operand);
     }
 
-    void cdv(int operand) {
+    void cdv(uint64_t operand) {
         reg.C = reg.A / pow(2, operand);
     }
 };
@@ -205,85 +192,37 @@ CPU readInput(string filename) {
     return output;
 }
 
-std::mutex foundMtx;
-bool found = false;
-
-void threadFunc(const CPU &ogCPU, uint64_t start, uint64_t stop, uint64_t *out) {
+bool solve(uint64_t n, const CPU &ogCPU) {
     CPU cpu = ogCPU;
+    cpu.reg.A = n;
+    cpu.run();
 
-    for (uint64_t regA = start; regA <= stop; regA++) {
+    if (cpu.output == ogCPU.program) {
+        std::cout << n << '\n';
+        return true;
+    }
+
+    n = n << 3;
+
+    for (int i = 0; i < 8; i++) {
         cpu = ogCPU;
-        cpu.reg.A = regA;
-
+        cpu.reg.A = n;
         cpu.run();
-
-        // foundMtx.lock();
-        if (found) {
-            // foundMtx.unlock();
-            break;
+        bool same = true;
+        for (int i = 0; i < cpu.output.size(); i++) {
+            same = same && cpu.output[i] == ogCPU.program[ogCPU.program.size() - cpu.output.size() + i];
         }
-        // foundMtx.unlock();
-
-        if (cpu.output == ogCPU.program) {
-            *out = regA;
-            // foundMtx.lock();
-            found = true;
-            // foundMtx.unlock();
-            break;
-        }
+        if (same && solve(n, ogCPU))
+            return true;
+        n++;
     }
-}
-
-uint64_t bruteForcer(const CPU ogCPU) {
-    vector<thread *> hilos(16);
-    vector<uint64_t *> results(16);
-
-    uint64_t size = UINT64_MAX / hilos.size();
-
-    for (uint64_t i = 0; i <= hilos.size(); i++) {
-        uint64_t start = size * i;
-        uint64_t stop = size * (i + 1) - 1;
-
-        results[i] = new uint64_t(0);
-
-        hilos[i] = new thread(threadFunc, ogCPU, start, stop, results[i]);
-    }
-
-    for (uint i = 0; i < hilos.size(); i++) {
-        hilos[i]->join();
-    }
-
-    for (const auto &e : results) {
-        if (*e != 0) {
-            return *e;
-        }
-    }
-
-    return 0;
+    return false;
 }
 
 int main() {
-    CPU cpu = readInput("input.txt");
+    const CPU ogCPU = readInput("input.txt");
 
-    cout << bruteForcer(cpu) << "\n";
-    return 0;
-
-    const CPU ogCPU = cpu;
-    int regA = 0;
-
-    while (cpu.output != cpu.program) {
-        cpu = ogCPU;
-        cpu.reg.A = regA;
-
-        cpu.run();
-        regA++;
-    }
-
-    for (int e : cpu.output) {
-        cout << e << ",";
-    }
-    cout << "\n";
-    cout << regA - 1 << "\n";
+    solve(0, ogCPU);
 
     return 0;
 }
