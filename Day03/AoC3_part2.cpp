@@ -66,10 +66,8 @@ int main(int argc, char *argv[]) {
         // Check the text between the previous match and the current one
         string between_matches = input.substr(last_match_end, match_start - last_match_end);
         if (regex_search(between_matches, regex("do\\(\\)"))) {
-            cout << "Found 'do()' between matches: " << between_matches << endl;
             process = true;
         } else if (regex_search(between_matches, regex("don't\\(\\)"))) {
-            cout << "Found 'don't()' between matches: " << between_matches << endl;
             process = false;
         }
 

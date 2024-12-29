@@ -29,7 +29,7 @@ struct pairHash {
 vector<vector<char>> readInput(string filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        // cout << "Error opening the file!";
+        cout << "Error opening the file!";
         exit(EXIT_FAILURE);
     }
 

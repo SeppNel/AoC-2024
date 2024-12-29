@@ -59,7 +59,7 @@ bool inVector(const T &needle, const vector<T> &haystack) {
 vector<pair<uint64_t, vector<uint64_t>>> readInput(string filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        // cout << "Error opening the file!";
+        cout << "Error opening the file!";
         exit(EXIT_FAILURE);
     }
 
